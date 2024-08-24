@@ -1,21 +1,28 @@
-import ContactForm from "./ContactForm/ContactForm";
-import ContactList from "./ContactList/ContactList";
-import SearchBox from "./SearchBox/SearchBox";
 import "./App.css";
-
-// const initialContacts = [
-//   { id: "id-1", name: "Rosie Simpson", number: "459-12-56" },
-//   { id: "id-2", name: "Hermione Kline", number: "443-89-12" },
-//   { id: "id-3", name: "Eden Clements", number: "645-17-79" },
-//   { id: "id-4", name: "Annie Copeland", number: "227-91-26" },
-// ];
+import ContactForm from "./ContactForm/ContactForm";
+import SearchBox from "./SearchBox/SearchBox";
+import ContactList from "./ContactList/ContactList";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import { fetchContacts } from "../redux/components/contactOps";
+import { selectError, selectIsLoading } from "../redux/components/selectors";
 
 function App() {
+  const dispatch = useDispatch();
+  const isLoading = useSelector(selectIsLoading);
+  const error = useSelector(selectError);
+  useEffect(() => {
+    dispatch(fetchContacts());
+  }, [dispatch]);
+
   return (
-    <div className="app">
+    <div>
       <h1>Phonebook</h1>
-      <ContactForm />
-      <SearchBox />
+      <div className="card">
+        <ContactForm />
+        <SearchBox />
+      </div>
+      {isLoading && !error && <b>Request in progress...</b>}
       <ContactList />
     </div>
   );
