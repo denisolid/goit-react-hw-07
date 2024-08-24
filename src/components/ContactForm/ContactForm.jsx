@@ -1,57 +1,55 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import styles from "./ContactForm.module.css";
-import { useDispatch, useSelector } from "react-redux";
-import { addContact } from "../../redux/components/contactsSlice";
-import { nanoid } from "nanoid";
-import { useEffect } from "react";
-import { fetchContactsThunk } from "../../redux/components/operations";
-import { selectIsLoading } from "../../redux/components/selectors";
+
+import s from "./ContactForm.module.css";
+import { useDispatch } from "react-redux";
+import { addContact } from "../../redux/components/contactOps";
 
 const ContactForm = () => {
-  const isLoading = useSelector(selectIsLoading);
   const dispatch = useDispatch();
-  useEffect(() => {
-    dispatch(fetchContactsThunk());
-  }, [dispatch]);
-  const initialValues = { name: "", number: "" };
-  const validationSchema = Yup.object({
+  const initialValues = {
+    name: "",
+    number: "",
+  };
+  const FeedbackSchema = Yup.object().shape({
     name: Yup.string()
       .min(3, "Too Short!")
       .max(50, "Too Long!")
       .required("Required"),
-    number: Yup.string().required("Required"),
+    number: Yup.string()
+      .min(3, "Too Short!")
+      .max(50, "Too Long!")
+      .required("Required"),
   });
 
   const handleSubmit = (values, options) => {
-    const newContact = { id: nanoid(), ...values };
-    dispatch(addContact(newContact));
-    console.log(values);
+    const newItem = { name: values.name, number: values.number };
 
+    dispatch(addContact(newItem));
     options.resetForm();
   };
 
   return (
-    <div>
-      <Formik
-        initialValues={initialValues}
-        validationSchema={validationSchema}
-        onSubmit={handleSubmit}
-      >
-        <Form className={styles.form}>
-          <label htmlFor="name">Name</label>
-          <Field id="name" name="name" type="text" />
-          <ErrorMessage name="name" component="div" />
+    <Formik
+      initialValues={initialValues}
+      onSubmit={handleSubmit}
+      validationSchema={FeedbackSchema}
+    >
+      <Form className={s.form}>
+        <label htmlFor="name" className={s.label}>
+          Name:
+          <Field type="text" name="name" className={s.input} />
+          <ErrorMessage name="name" component="p" />
+        </label>
 
-          <label htmlFor="number">Number</label>
-          <Field id="number" name="number" type="text" />
-          <ErrorMessage name="number" component="div" />
-
-          <button type="submit">Add Contact</button>
-        </Form>
-      </Formik>
-      {isLoading && <h1>Loading...</h1>}
-    </div>
+        <label htmlFor="number" className={s.label}>
+          Number:
+          <Field type="text" name="number" className={s.input} />
+          <ErrorMessage name="number" component="p" />
+        </label>
+        <button type="submit">Add Contact</button>
+      </Form>
+    </Formik>
   );
 };
 
